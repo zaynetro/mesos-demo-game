@@ -1,0 +1,87 @@
+<!doctype>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Game page</title>
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        background: #fff;
+        font-size: 120%;
+      }
+
+      main {
+        max-width: 40rem;
+        margin: 2rem auto;
+      }
+
+      main #name {
+        font-size: 2rem;
+        padding: 1rem;
+        width: 100%;
+      }
+
+      main #submitBtn {
+        padding: 2rem 0;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Game page</h1>
+
+      <p>
+        <input type="text" id="name" placeholder="My first name is..." />
+      </p>
+
+      <p>
+        <button id="submitBtn" disabled>Submit</button>
+      </p>
+
+      <p>
+        <ul>
+          <li>Submitted: <span id="submitTimes">0</span> times</li>
+          <li>Failed:    <span id="failTimes">0</span> times</li>
+        </ul>
+      </p>
+    </main>
+
+    <script>
+      var nameEl = document.querySelector('#name');
+      var submitBtnEl = document.querySelector('#submitBtn');
+      var submitTimesEl = document.querySelector('#submitTimes');
+      var failTimesEl = document.querySelector('#failTimes');
+      var submitTimes = 0;
+      var failTimes = 0;
+
+      submitBtnEl.disabled = nameEl.value.length === 0;
+
+      nameEl.addEventListener('keyup', function (e) {
+        submitBtnEl.disabled = e.target.value.length === 0;
+      }, false);
+
+      submitBtnEl.addEventListener('click', function () {
+        var name = nameEl.value;
+        fetch('/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: name
+          })
+        }).then(function (r) {
+          if(r.status === 200) {
+            submitTimes++;
+            submitTimesEl.textContent = submitTimes;
+          } else {
+            failTimes++;
+            failTimesEl.textContent = failTimes;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
