@@ -12,7 +12,6 @@ extern crate serde_json;
 extern crate hyper;
 
 use std::collections::HashMap;
-use std::collections::hash_map::Entry;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::env;
