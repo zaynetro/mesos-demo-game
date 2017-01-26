@@ -117,14 +117,10 @@ impl ApiHandler {
     }
 
     fn increase_score(&self, name: String) -> () {
-        match self.score.lock().unwrap().names.entry(name) {
-            Entry::Occupied(mut e) => {
-                *e.get_mut() += 1;
-            },
-            Entry::Vacant(e) => {
-                e.insert(0);
-            },
-        }
+        let mut score = self.score.lock().unwrap();
+        println!("Increasing score {:?}", *score);
+        let v = score.names.entry(name).or_insert(0);
+        *v += 1;
     }
 
     fn try_submit_score(&self) -> () {
