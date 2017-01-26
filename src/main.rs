@@ -270,11 +270,12 @@ fn get_markup(server_id: String, server_color: String) -> maud::PreEscaped<Strin
         html {
             head {
                 meta charset="utf-8" /
+                meta name="viewport" content="width=device-width, initial-scale=1.0" /
                 title "Game page"
                 style {
                   "body {"
                   "  padding: 0;"
-                  "  margin: 0;"
+                  "  margin: 0 1rem;"
                   "  background: #fff;"
                   "  font-size: 120%;"
                   "}"
