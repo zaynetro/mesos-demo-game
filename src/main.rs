@@ -155,15 +155,21 @@ impl ApiHandler {
             }
         });
     }
-}
 
-impl Handler for ApiHandler {
-    fn handle(&self, req: &mut Request) -> IronResult<Response> {
-        match req.method {
-            method::Post => {},
-            _ => return Ok(Response::with(status::MethodNotAllowed))
+    fn handle_get(&self, req: &mut Request) -> IronResult<Response> {
+        match req.url.query() {
+            Some(name) => {
+                self.increase_score(name.into());
+                self.try_submit_score();
+                Ok(Response::with((status::Ok, "Ok")))
+            },
+            None => {
+                Ok(Response::with((status::Ok, "No name")))
+            },
         }
+    }
 
+    fn handle_post(&self, req: &mut Request) -> IronResult<Response> {
         match req.get::<bodyparser::Json>() {
             Ok(Some(json_body)) => {
                 match json_body.find("name") {
@@ -183,6 +189,16 @@ impl Handler for ApiHandler {
                 }
             }
             _ => Ok(Response::with(status::BadRequest))
+        }
+    }
+}
+
+impl Handler for ApiHandler {
+    fn handle(&self, req: &mut Request) -> IronResult<Response> {
+        match req.method {
+            method::Post => self.handle_post(req),
+            method::Get => self.handle_get(req),
+            _ => return Ok(Response::with(status::MethodNotAllowed))
         }
     }
 }
