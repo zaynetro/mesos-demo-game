@@ -15,6 +15,7 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::env;
 use iron::prelude::*;
 use iron::{Handler};
 use iron::{status, method, typemap};
@@ -107,6 +108,7 @@ struct ApiHandler {
     server_color: String,
     score: Arc<Mutex<Score>>,
     client: Arc<Client>,
+    leaderboard_url: String,
 }
 
 impl ApiHandler {
@@ -132,7 +134,8 @@ impl ApiHandler {
             return;
         }
 
-        println!("Submitting score...");
+        let url = format!("{}/submit", self.leaderboard_url);
+        println!("Submitting score {}...", url);
 
         let client = self.client.clone();
         let serialized = serde_json::to_string_pretty(&*score).unwrap();
@@ -142,7 +145,7 @@ impl ApiHandler {
         (*score).names.clear();
 
         thread::spawn(move || {
-            let res = client.post("http://localhost:8080/submit")
+            let res = client.post(&url)
                 .header(ContentType::json())
                 .body(&serialized)
                 .send();
@@ -204,6 +207,9 @@ fn main() {
         server_color: server_color.clone(),
         score: Arc::new(Mutex::new(Score::new())),
         client: Arc::new(Client::new()),
+        leaderboard_url: env::var_os("LEADERBOARD_URL")
+            .map_or(Ok("http://localhost:8080".into()), |s| s.into_string())
+            .unwrap(),
     };
     println!("Server id='{}' and color='{}'", server_id, server_color);
 
